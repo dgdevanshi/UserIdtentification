@@ -17,6 +17,7 @@ import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -74,16 +75,24 @@ class MainActivity : AppCompatActivity() {
             val name = mAppLabelMap[pkgStats.packageName].toString()
             val lastTimeUsed = pkgStats.lastTimeUsed
             val usageTime = pkgStats.totalTimeInForeground/1000
-            appsMap[name] = mutableListOf(lastTimeUsed,usageTime)
+            val timesUsed = pkgStats.firstTimeStamp - pkgStats.lastTimeUsed
+            appsMap[name] = mutableListOf(lastTimeUsed,usageTime, timesUsed)
         }
 
         val sortedMap: MutableMap<String, MutableList<Long>> = TreeMap(appsMap)
         sortedMap.forEach { entry ->
-            appsTime.append(entry.key + " : " + getLongtoDate(entry.value[0]) + " , " + entry.value[1] + "\n")
+            appsTime.append(entry.key + " : " + getLongtoDate(entry.value[0]) + " , " + entry.value[1] + " , " + milliToMins(entry.value[2]) + "\n")
         }
 
 
     }
+
+    private fun milliToMins(time: Long) : String {
+        val mins = TimeUnit.MILLISECONDS.toMinutes(time)
+        val secs = (TimeUnit.MILLISECONDS.toSeconds(time) % 60)
+        return "$mins:$secs"
+    }
+
 
     @SuppressLint("SimpleDateFormat")
     private fun getLongtoDate(time: Long) : String {
